@@ -1,0 +1,47 @@
+Kubernetes volume script for 2 containers
+
+communication between pods to pods is called Hostpath
+communication between container to container is called emptyDir
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: flipkartvolume
+spec:
+  containers:
+  - name: c00
+    image: centos:7
+    command: ["/bin/bash", "-c", "sleep 15000"]
+    volumeMounts:
+      - name: sak
+        mountPath: "/tmp/signup"
+  - name: c01
+    image: centos:7
+    command: ["/bin/bash", "-c", "sleep 10000"]
+    volumeMounts:
+      - name: sak
+        mountPath: "/tmp/login"
+  volumes:
+  - name: sak
+    emptyDir: {}
+
+
+task -1:steps
+
+1.sudo su -
+2.apt update
+3.install Kubernetes from sakops.onrender.com
+4.kubeadm join (copy paste)
+5.kubectl get nodes
+6.vi flipkartvolume.yml
+7.kubectl apply -f flipkartvolume.yml
+8.kubectl get pods
+9.kubectl exec -it flipkartvolume -c c00 -- /bin/bash
+10.echo "hello from manoj" > /tmp/signup/data.txt
+11.exit
+12.kubectl exec -it flipkartvolume -c c01 -- /bin/bash
+13cat /tmp/login/data.txt
+--------------------------------
+output: hello from manoj
+--------------------------------
+
