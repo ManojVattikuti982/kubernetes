@@ -1,0 +1,124 @@
+Step 1 : Launch 2 servers(Ubuntu 24.0.4)
+	 Master_node
+	 Worker_node
+
+Step 2 : Connect with Mobaxterm using (public Ip of master_node and Worker_node)
+
+Step 3 : perform with Master_node
+	 
+	sudo su - (come to the root user)
+	
+	apt update (for any update)
+	
+	install kubeAdm (copy paste in Sir website)
+
+	 
+Step 4 : perform with Worker_node
+	
+	 sudo su - (come to the root user)
+		
+	apt update (for any update)
+	
+	install KubeAdm (copy paste in Sir website)
+
+	copy a token of master_node and paste it in Worker_node
+
+
+Step 5 : perform in master_node
+
+	kubectl get nodes (to check the nodes)
+
+	vi deploy.yml (create a file for the script)
+
+	---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flipkart-deploy
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flipkart-service
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30070
+  type: LoadBalancer
+
+	
+	kubectl get nodes ( to check nodes)
+
+  	kubectl apply -f delopy.yml ( to apply the pods we created)
+
+  	cat delopy.yml ( to read the script)
+
+   	kubectl get all ( to get all services at a time)
+
+   	curl 10.109.159.203:8000 ( to check the connection of (Load Balancer) with PortNumber of 8000 )
+ 
+   	kubectl logs flipkart-deploy-689cc9b767-frfm9 ( to check the detailed info of Running Pods )
+	
+    	kubectl get nodes ( to check nodes)
+
+    	kubectl get pods -o wide ( to get wide info of pods with ip address )
+
+    	curl 10.44.0.1:80 ( to check connection of running pod (ip address) with PortNumber of 80 )
+
+   	kubectl get svc ( to get the services info )
+
+   	curl 10.103.48.242:80 ( to check the connections of Load Balancer (cluster-ip address) with the PortNumber of 80 )
+
+
+
+Step 6 : create a target group
+
+	> choose a target group ( IP addresses )
+	> provide a target name
+	> choose protocol (TCP) with port (30070)
+	> IP addresses type (IPv4)
+	> click on next
+
+	> enter an IPv4 addresses from a VPC subnet ( give a worker_node (private IP )
+	> click on Include as pending below.
+	> click on create target group
+
+Step 7 : create a load balancer
+
+	> choose a load balancer type ( Network Load balancer )
+	> provide a load balancer name
+	> choose Scheme ( Internet-facing )
+	> select all Availability Zone and Subnets
+	> select Security group ( allow_all_traffic )
+	> provide a Listeners and routing ( protocol-TCP with port-80 ) and take a default action ( which u created target group )
+	> click on create load balancer
+
+Step 8 : check a connection in browser
+	 
+	> copy a worker_node(public IP ) paste in browser with the PortNumber 30070 // Welcome to nginx
+	> copy a DNS name ( created load balancer ) paste in browser  // Welcome to nginx
+	
+	
+

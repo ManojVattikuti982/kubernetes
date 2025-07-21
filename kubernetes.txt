@@ -1,0 +1,39 @@
+🧩 Task: Deploy a Web App in Kubernetes and Expose It via AWS Network Load Balancer(deployment and service script)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demons
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+        - name: login
+          image: httpd
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demons-service
+  labels:
+    app: webapp
+spec:
+  type: LoadBalancer
+  selector:
+    app: webapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30070
