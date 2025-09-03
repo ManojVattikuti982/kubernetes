@@ -1,0 +1,136 @@
+2 servers t2.medium
+
+go to official wesite of promoteous
+--click on download
+ -lts -> Linux -> copy the link
+
+in master node
+-wget link
+ls
+extrat the file
+--delete the zip file
+--go inside th file 
+cd and ls
+to run promotheous -- ./promoteous
+paste 9090 with ip address
+
+to monitor worker node
+
+in expoerter copy link and extsrct
+go inside
+
+🧩 Task: Monitor Worker Node Using Prometheus  
+=============================================  
+📌 Setup Prometheus on Master Node  
+📌 Install Node Exporter on Worker Node  
+📌 View metrics via Prometheus web UI (port 9090)
+
+---------------------------------------------
+📌 Prerequisites:
+- Two EC2 instances (t2.medium)
+- OS: Amazon Linux / Ubuntu (any Linux)
+- Ports 9090 (Prometheus) and 9100 (Node Exporter) allowed in Security Group
+- SSH access to both servers
+
+================================================
+🖥️ Master Node Setup (Prometheus)
+================================================
+
+🔗 Step 1: Download Prometheus
+- Go to: https://prometheus.io
+- Click on "Download"
+- Under "LTS → Linux → x86_64", copy the tar.gz link
+
+Example link:
+https://github.com/prometheus/prometheus/releases/download/v2.51.2/prometheus-2.51.2.linux-amd64.tar.gz
+
+💻 Step 2: Connect to Master Node
+ssh ec2-user@<master-public-ip>
+
+⬇️ Step 3: Download Prometheus
+wget https://github.com/prometheus/prometheus/releases/download/v2.51.2/prometheus-2.51.2.linux-amd64.tar.gz
+
+📂 Step 4: Extract and Clean Up
+ls
+tar -xvzf prometheus-2.51.2.linux-amd64.tar.gz
+rm prometheus-2.51.2.linux-amd64.tar.gz
+cd prometheus-2.51.2.linux-amd64
+ls
+
+🚀 Step 5: Run Prometheus
+./prometheus
+
+🌐 Step 6: Access Prometheus UI
+http://<master-public-ip>:9090
+
+Make sure port 9090 is allowed in the EC2 security group.
+
+================================================
+🖥️ Worker Node Setup (Node Exporter)
+================================================
+
+🔗 Step 1: Download Node Exporter
+- Go to: https://prometheus.io/download/
+- Scroll to Node Exporter → Linux → x86_64
+- Copy the tar.gz link
+
+Example:
+https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux-amd64.tar.gz
+
+💻 Step 2: Connect to Worker Node
+ssh ec2-user@<worker-public-ip>
+
+⬇️ Step 3: Download & Extract
+wget https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux-amd64.tar.gz
+tar -xvzf node_exporter-1.8.1.linux-amd64.tar.gz
+rm node_exporter-1.8.1.linux-amd64.tar.gz
+cd node_exporter-1.8.1.linux-amd64
+
+🚀 Step 4: Run Node Exporter
+./node_exporter
+
+Make sure port 9100 is allowed in the worker’s EC2 security group.
+
+================================================
+🔧 Configure Prometheus to Monitor Worker Node
+================================================
+
+📄 Step 1: Edit prometheus.yml on Master
+cd prometheus-2.51.2.linux-amd64
+nano prometheus.yml
+
+✏️ Step 2: Add the following under scrape_configs:
+  - job_name: 'worker-node'
+    static_configs:
+      - targets: ['<worker-private-ip>:9100']
+
+Example:
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'worker-node'
+    static_configs:
+      - targets: ['172.31.20.45:9100']
+
+🔄 Step 3: Restart Prometheus
+(If Prometheus is running, stop it with Ctrl + C)
+
+Then start again:
+./prometheus
+
+================================================
+✅ Final Verification
+================================================
+
+- Open Prometheus UI: http://<master-public-ip>:9090
+- Click "Status" → "Targets"
+- You should see:
+    - localhost:9090 (Prometheus itself)
+    - <worker-private-ip>:9100 (Node Exporter)
+
+Done ✅
+
+
